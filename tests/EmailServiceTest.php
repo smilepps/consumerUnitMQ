@@ -2,15 +2,16 @@
 // example.com/tests/Simplex/Tests/FrameworkTest.php
 namespace Simplex\Tests;
 
-use PHPUnit\Framework\TestCase;
+//use PHPUnit\Framework\TestCase;
 use App\Consumer\EmailService;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
-use App\Command\CreateUserCommand;
+use App\Command\TestConsumerCommand;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+//use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-class EmailServiceTest extends KernelTestCase
+class EmailServiceTest extends WebTestCase
 {
     public function testSendJsonInRabbit()
     {
@@ -49,7 +50,6 @@ class EmailServiceTest extends KernelTestCase
         $message = $collectedMessages[0];
 
         // Asserting email data
-        $this->assertInstanceOf('Swift_Message', $message);
         $this->assertSame('Some subject', $message->getSubject());
         $this->assertSame('from@test.com', key($message->getFrom()));
         $this->assertSame('to@test.org', key($message->getTo()));
