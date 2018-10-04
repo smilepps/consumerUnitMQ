@@ -1,4 +1,30 @@
-# consumerUnitMQ
-# phpunit
-# bin/console rabbitmq:consumer emailing
-# bin/console app:test-consumer
+Задача
+====================
+1) Имеется бибилиотека для работы с RabbitMQ - https://github.com/php-amqplib/php-amqplib и сервер с установленным rabbitMQ и добавленной очередью email (это все абстрактно, хотя можно и локалньо развернуть)
+2) В очередь падают сообщения такого формата: '{"type":"email", "to":"to@test.org", "from": "from@test.com", "subject": "Some subject", "message": "Hello world!"}' (это просто JSON строка, которую нужно распарсить при обработке сообения из очереди)
+
+Необходимо написать consumer который бы выбгребал такие сообщения из очереди и отправлял их по адресату. Также необходимо покрыть consumer unit тестами. Для разработки желательно использовать любой современный фреймворк и php7.1
+
+
+Использование
+---------
+
+Чтобы запустить consumer:
+
+```perl
+bin/console rabbitmq:consumer emailing
+```
+
+Чтобы отправить сообщение в очередь RabbitMQ:
+
+```perl
+bin/console app:test-consumer
+```
+
+Для запуска тестирования:
+
+```perl
+phpunit
+```
+
+Дополнительно потребуеться установить RabbitMQ сервер.
