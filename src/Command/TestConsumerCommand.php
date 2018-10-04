@@ -21,6 +21,7 @@ class TestConsumerCommand extends ContainerAwareCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->getContainer()->get('old_sound_rabbit_mq.emailing_producer')->publish('{}');
+        $this->getContainer()->get('old_sound_rabbit_mq.emailing_producer')->publish('{"type":"email", "to":"to@test.org", "from": "from@test.com", "subject": "Some subject", "message": "Hello world!"}');
+        echo 'Message sended';
     }
 }
