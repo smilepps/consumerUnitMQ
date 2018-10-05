@@ -7,6 +7,17 @@ use Symfony\Bundle\SwiftmailerBundle;
 
 class EmailService implements ConsumerInterface
 {
+    /** @var ContainerInterface $container */
+    protected $container;
+
+    /**
+     * @param ContainerInterface $container
+     */
+    public function __construct(\Swift_Mailer $mailer)
+    {
+        $this->mailer = $mailer;
+    }
+
     public function execute(AMQPMessage $msg)
     {
         $body = $msg->body;
@@ -18,7 +29,7 @@ class EmailService implements ConsumerInterface
 
         if ($type == "email") {
             $this->sendEmail($response);
-        }else{
+        } else {
             var_dump($response);
         }
     }
@@ -28,21 +39,6 @@ class EmailService implements ConsumerInterface
         $message = (new \Swift_Message($response['subject'], $response['message']))
             ->setFrom($response['from'])
             ->setTo($response['to']);
-        $transport = $this->getTransport();
-        $transport->send($message);
-        $transport->stop();
-    }
-    
-    /** @return \Swift_Transport  */
-    protected function getTransport()
-    {
-        /** @var \Swift_Transport $swiftTransport */
-        $swiftTransport = $this->getContainer()->get('swiftmailer.transport.real');
-
-        if (!$swiftTransport->isStarted()) {
-            $swiftTransport->start();
-        }
-
-        return $swiftTransport;
+        $this->mailer->send($message);
     }
 }
