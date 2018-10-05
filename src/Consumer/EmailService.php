@@ -9,7 +9,7 @@ class EmailService implements ConsumerInterface
 {
     /** @var ContainerInterface $container */
     protected $container;
-
+    private $mailer;
     /**
      * @param ContainerInterface $container
      */
@@ -22,6 +22,7 @@ class EmailService implements ConsumerInterface
     {
         $body = $msg->body;
         //var_dump($body);
+        //echo 'Recive message' . PHP_EOL;
 
         $response = json_decode($msg->body, true);
 
@@ -30,12 +31,13 @@ class EmailService implements ConsumerInterface
         if ($type == "email") {
             $this->sendEmail($response);
         } else {
-            var_dump($response);
+            //var_dump($response);
         }
     }
 
     private function sendEmail($response)
     {
+        //echo 'Send to email' . PHP_EOL;
         $message = (new \Swift_Message($response['subject'], $response['message']))
             ->setFrom($response['from'])
             ->setTo($response['to']);
