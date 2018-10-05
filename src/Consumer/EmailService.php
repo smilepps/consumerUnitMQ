@@ -3,6 +3,7 @@ namespace App\Consumer;
 
 use OldSound\RabbitMqBundle\RabbitMq\ConsumerInterface;
 use PhpAmqpLib\Message\AMQPMessage;
+use Symfony\Bundle\SwiftmailerBundle;
 
 class EmailService implements ConsumerInterface
 {
@@ -27,6 +28,21 @@ class EmailService implements ConsumerInterface
         $message = (new \Swift_Message($response['subject'], $response['message']))
             ->setFrom($response['from'])
             ->setTo($response['to']);
-        $mailer->send($message);
+        $transport = $this->getTransport();
+        $transport->send($message);
+        $transport->stop();
+    }
+    
+    /** @return \Swift_Transport  */
+    protected function getTransport()
+    {
+        /** @var \Swift_Transport $swiftTransport */
+        $swiftTransport = $this->getContainer()->get('swiftmailer.transport.real');
+
+        if (!$swiftTransport->isStarted()) {
+            $swiftTransport->start();
+        }
+
+        return $swiftTransport;
     }
 }
