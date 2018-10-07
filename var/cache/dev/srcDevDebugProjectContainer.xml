@@ -84,11 +84,15 @@
     <parameter key="swiftmailer.spool.default.memory.path">/mnt/c/OSPanel/domains/symfonyMQ/var/cache/dev/swiftmailer/spool/default</parameter>
     <parameter key="swiftmailer.mailer.default.spool.enabled">true</parameter>
     <parameter key="swiftmailer.mailer.default.plugin.impersonate">null</parameter>
-    <parameter key="swiftmailer.mailer.default.single_address">null</parameter>
+    <parameter key="swiftmailer.mailer.default.single_address">memory999@ya.ru</parameter>
+    <parameter key="swiftmailer.mailer.default.delivery_addresses" type="collection">
+      <parameter>memory999@ya.ru</parameter>
+    </parameter>
+    <parameter key="swiftmailer.mailer.default.delivery_whitelist" type="collection"/>
     <parameter key="swiftmailer.mailer.default.delivery.enabled">true</parameter>
     <parameter key="swiftmailer.spool.enabled">true</parameter>
     <parameter key="swiftmailer.delivery.enabled">true</parameter>
-    <parameter key="swiftmailer.single_address">null</parameter>
+    <parameter key="swiftmailer.single_address">memory999@ya.ru</parameter>
     <parameter key="swiftmailer.mailers" type="collection">
       <parameter key="default">swiftmailer.mailer.default</parameter>
     </parameter>
@@ -106,8 +110,12 @@
     <service id="App\Command\TestConsumerCommand" class="App\Command\TestConsumerCommand" public="false" autowire="true" autoconfigure="true">
       <tag name="console.command"/>
     </service>
-    <service id="App\Consumer\EmailService" class="App\Consumer\EmailService" public="false" autowire="true" autoconfigure="true"/>
-    <service id="email_service" class="App\Consumer\EmailService" public="false" autowire="true" autoconfigure="true"/>
+    <service id="App\Consumer\EmailService" class="App\Consumer\EmailService" public="false" autowire="true" autoconfigure="true">
+      <argument type="service" id="swiftmailer.mailer.default"/>
+    </service>
+    <service id="email_service" class="App\Consumer\EmailService" public="false" autowire="true" autoconfigure="true">
+      <argument type="service" id="swiftmailer.mailer.default"/>
+    </service>
     <service id="controller_name_converter" class="Symfony\Bundle\FrameworkBundle\Controller\ControllerNameParser" public="false">
       <tag name="monolog.logger" channel="request"/>
       <argument type="service" id="kernel"/>
@@ -918,16 +926,16 @@
       <argument>PhpAmqpLib\Connection\AMQPConnection</argument>
       <argument type="collection">
         <argument key="host">localhost</argument>
+        <argument key="port">5672</argument>
         <argument key="user">guest</argument>
         <argument key="password">guest</argument>
         <argument key="vhost">/</argument>
+        <argument key="lazy">false</argument>
         <argument key="connection_timeout">60</argument>
         <argument key="read_write_timeout">60</argument>
         <argument key="keepalive">false</argument>
         <argument key="heartbeat">30</argument>
         <argument key="url"></argument>
-        <argument key="port">5672</argument>
-        <argument key="lazy">false</argument>
         <argument key="use_socket">false</argument>
         <argument key="ssl_context" type="collection"/>
       </argument>
@@ -967,6 +975,7 @@
     <service id="old_sound_rabbit_mq.emailing_consumer" class="OldSound\RabbitMqBundle\RabbitMq\Consumer" public="true">
       <tag name="old_sound_rabbit_mq.base_amqp"/>
       <tag name="old_sound_rabbit_mq.consumer"/>
+      <tag name="monolog.logger" channel="phpamqplib"/>
       <argument type="service" id="old_sound_rabbit_mq.connection.default"/>
       <call method="setExchangeOptions">
         <argument type="collection">
@@ -1001,6 +1010,9 @@
           <argument type="service" id="email_service"/>
           <argument>execute</argument>
         </argument>
+      </call>
+      <call method="setLogger">
+        <argument type="service" id="logger" on-invalid="ignore"/>
       </call>
       <call method="setEventDispatcher">
         <argument type="service" id="event_dispatcher" on-invalid="ignore"/>
@@ -1096,8 +1108,16 @@
       <argument type="service" id="swiftmailer.mailer.default.transport.eventdispatcher"/>
       <argument type="service" id="swiftmailer.mailer.default.spool.memory"/>
       <call method="registerPlugin">
+        <argument type="service" id="swiftmailer.mailer.default.plugin.redirecting"/>
+      </call>
+      <call method="registerPlugin">
         <argument type="service" id="swiftmailer.mailer.default.plugin.messagelogger"/>
       </call>
+    </service>
+    <service id="swiftmailer.mailer.default.plugin.redirecting" class="Swift_Plugins_RedirectingPlugin" public="false">
+      <tag name="swiftmailer.default.plugin"/>
+      <argument>%swiftmailer.mailer.default.delivery_addresses%</argument>
+      <argument type="collection"/>
     </service>
     <service id="swiftmailer.mailer.default.plugin.messagelogger" class="Swift_Plugins_MessageLogger" public="true">
       <tag name="swiftmailer.default.plugin"/>
@@ -1238,6 +1258,7 @@
     <service id="swiftmailer.spool" alias="swiftmailer.mailer.default.spool.memory"/>
     <service id="swiftmailer.transport.real" alias="swiftmailer.mailer.default.transport.dynamic"/>
     <service id="Swift_Spool" alias="swiftmailer.mailer.default.spool.memory" public="false"/>
+    <service id="swiftmailer.plugin.redirecting" alias="swiftmailer.mailer.default.plugin.redirecting"/>
     <service id="swiftmailer.plugin.messagelogger" alias="swiftmailer.mailer.default.plugin.messagelogger"/>
     <service id="swiftmailer.mailer" alias="swiftmailer.mailer.default"/>
     <service id="swiftmailer.transport" alias="swiftmailer.mailer.default.transport.spool"/>

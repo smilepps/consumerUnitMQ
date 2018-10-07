@@ -1,17 +1,13 @@
 <?php
-// example.com/tests/Simplex/Tests/FrameworkTest.php
 namespace Simplex\Tests;
 
-//use PHPUnit\Framework\TestCase;
 use App\Consumer\EmailService;
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use App\Command\TestConsumerCommand;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
-//use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Tester\CommandTester;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class EmailServiceTest extends WebTestCase
+class EmailServiceTest extends KernelTestCase
 {
     public function testSendJsonInRabbit()
     {
@@ -30,29 +26,46 @@ class EmailServiceTest extends WebTestCase
         $output = $commandTester->getDisplay();
         $this->assertContains('Message sended', $output);
     }
-
-    public function testSendEmail()
+    
+    /**
+     * @dataProvider provider
+     * @param array $data
+     */
+    public function testSendEmail($key, $data)
     {
-        $client = static::createClient();
-        // enables the profiler for the next request (it does nothing if the profiler is not available)
-        $client->enableProfiler();
+        // container
+        $container = self::bootKernel()->getContainer();
 
-        (new EmailService())->execute(
-                new \PhpAmqpLib\Message\AMQPMessage('{"type":"email", "to":"to@test.org", "from": "from@test.com", "subject": "Some subject", "message": "Hello world!"}')
+        // register swiftmailer logger
+        $mailer = $container->get('mailer');
+        $logger = new \Swift_Plugins_MessageLogger();
+        $mailer->registerPlugin($logger);
+        
+        (new EmailService($mailer))->execute(
+                new \PhpAmqpLib\Message\AMQPMessage($data)
         );
 
-        $mailCollector = $client->getProfile()->getCollector('swiftmailer');
+        if($key == 'isGood'){
+            // checks that an email was sent
+            $this->assertSame(1, $logger->countMessages());
 
-        // checks that an email was sent
-        $this->assertSame(1, $mailCollector->getMessageCount());
+            $collectedMessages = $logger->getMessages();
+            $message = $collectedMessages[0];
 
-        $collectedMessages = $mailCollector->getMessages();
-        $message = $collectedMessages[0];
-
-        // Asserting email data
-        $this->assertSame('Some subject', $message->getSubject());
-        $this->assertSame('from@test.com', key($message->getFrom()));
-        $this->assertSame('to@test.org', key($message->getTo()));
-        $this->assertSame('Hello world!', $message->getBody());
+            // Asserting email data
+            $this->assertSame('Some subject', $message->getSubject());
+            $this->assertSame('from@test.com', key($message->getFrom()));
+            $this->assertSame('to@test.org', key($message->getTo()));
+            $this->assertSame('Hello world!', $message->getBody());
+        }else{
+            $this->assertSame(0, $logger->countMessages());
+        }
+    }
+    
+    public function provider()
+    {
+        yield ['isGood', '{"type":"email", "to":"to@test.org", "from": "from@test.com", "subject": "Some subject", "message": "Hello world!"}'];
+        yield ['isBad', '{"type":"email", "to":"", "from": "from@test.com", "subject": "Some subject", "message": "Hello world!"}'];
+        yield ['Empty', ''];
     }
 }

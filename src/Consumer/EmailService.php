@@ -3,19 +3,22 @@ namespace App\Consumer;
 
 use OldSound\RabbitMqBundle\RabbitMq\ConsumerInterface;
 use PhpAmqpLib\Message\AMQPMessage;
-use Symfony\Bundle\SwiftmailerBundle;
+use Egulias\EmailValidator\EmailValidator;
+use Egulias\EmailValidator\Validation\RFCValidation;
 
 class EmailService implements ConsumerInterface
 {
     /** @var ContainerInterface $container */
     protected $container;
     private $mailer;
+    private $validator;
     /**
      * @param ContainerInterface $container
      */
     public function __construct(\Swift_Mailer $mailer)
     {
         $this->mailer = $mailer;
+        $this->validator = new EmailValidator();
     }
 
     public function execute(AMQPMessage $msg)
@@ -29,9 +32,13 @@ class EmailService implements ConsumerInterface
         $type = $response["type"];
 
         if ($type == "email") {
-            $this->sendEmail($response);
+            if($this->checkStructure($response)){
+                $this->sendEmail($response);
+            } else {
+                //throw new \Exceptionon('Invaliid strucure');
+            }
         } else {
-            //var_dump($response);
+            //throw new \Exception('Unknow type message');
         }
     }
 
@@ -42,5 +49,13 @@ class EmailService implements ConsumerInterface
             ->setFrom($response['from'])
             ->setTo($response['to']);
         $this->mailer->send($message);
+    }
+    
+    private function checkStructure($data) {
+        return
+                $this->validator->isValid($data['to'], new RFCValidation()) &&
+                $this->validator->isValid($data['from'], new RFCValidation()) &&
+                !empty($data['subject']) &&
+                !empty($data['message']);
     }
 }

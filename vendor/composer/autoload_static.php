@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit4f36c68576b1e03e2695981b4067b2ba
+class ComposerStaticInit5788b7ca73cc0d419cea2adac03a62ca
 {
     public static $files = array (
         '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
@@ -25,11 +25,13 @@ class ComposerStaticInit4f36c68576b1e03e2695981b4067b2ba
             'Symfony\\Component\\Filesystem\\' => 29,
             'Symfony\\Component\\EventDispatcher\\' => 34,
             'Symfony\\Component\\Dotenv\\' => 25,
+            'Symfony\\Component\\DomCrawler\\' => 29,
             'Symfony\\Component\\DependencyInjection\\' => 38,
             'Symfony\\Component\\Debug\\' => 24,
             'Symfony\\Component\\Console\\' => 26,
             'Symfony\\Component\\Config\\' => 25,
             'Symfony\\Component\\Cache\\' => 24,
+            'Symfony\\Component\\BrowserKit\\' => 29,
             'Symfony\\Bundle\\SwiftmailerBundle\\' => 33,
             'Symfony\\Bundle\\FrameworkBundle\\' => 31,
             'Symfony\\Bridge\\PhpUnit\\' => 23,
@@ -98,6 +100,10 @@ class ComposerStaticInit4f36c68576b1e03e2695981b4067b2ba
         array (
             0 => __DIR__ . '/..' . '/symfony/dotenv',
         ),
+        'Symfony\\Component\\DomCrawler\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/symfony/dom-crawler',
+        ),
         'Symfony\\Component\\DependencyInjection\\' => 
         array (
             0 => __DIR__ . '/..' . '/symfony/dependency-injection',
@@ -117,6 +123,10 @@ class ComposerStaticInit4f36c68576b1e03e2695981b4067b2ba
         'Symfony\\Component\\Cache\\' => 
         array (
             0 => __DIR__ . '/..' . '/symfony/cache',
+        ),
+        'Symfony\\Component\\BrowserKit\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/symfony/browser-kit',
         ),
         'Symfony\\Bundle\\SwiftmailerBundle\\' => 
         array (
@@ -181,9 +191,9 @@ class ComposerStaticInit4f36c68576b1e03e2695981b4067b2ba
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit4f36c68576b1e03e2695981b4067b2ba::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit4f36c68576b1e03e2695981b4067b2ba::$prefixDirsPsr4;
-            $loader->prefixesPsr0 = ComposerStaticInit4f36c68576b1e03e2695981b4067b2ba::$prefixesPsr0;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit5788b7ca73cc0d419cea2adac03a62ca::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit5788b7ca73cc0d419cea2adac03a62ca::$prefixDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInit5788b7ca73cc0d419cea2adac03a62ca::$prefixesPsr0;
 
         }, null, ClassLoader::class);
     }
