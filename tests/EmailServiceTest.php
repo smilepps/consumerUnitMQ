@@ -6,6 +6,8 @@ use App\Command\TestConsumerCommand;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use OldSound\RabbitMqBundle\RabbitMq\AMQPConnectionFactory;
+use OldSound\RabbitMqBundle\Tests\RabbitMq\Fixtures\AMQPConnection;
 
 class EmailServiceTest extends KernelTestCase
 {
@@ -29,7 +31,6 @@ class EmailServiceTest extends KernelTestCase
     
     /**
      * @dataProvider provider
-     * @param array $data
      */
     public function testSendEmail($key, $data)
     {
@@ -68,4 +69,5 @@ class EmailServiceTest extends KernelTestCase
         yield ['isBad', '{"type":"email", "to":"", "from": "from@test.com", "subject": "Some subject", "message": "Hello world!"}'];
         yield ['Empty', ''];
     }
+    
 }
