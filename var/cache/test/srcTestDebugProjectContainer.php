@@ -16,6 +16,6 @@ if (!\class_exists(srcTestDebugProjectContainer::class, false)) {
 
 return new \ContainerYuc5DbU\srcTestDebugProjectContainer(array(
     'container.build_hash' => 'Yuc5DbU',
-    'container.build_id' => '6a549bfa',
-    'container.build_time' => 1538907995,
+    'container.build_id' => 'c5a8f836',
+    'container.build_time' => 1538936180,
 ), __DIR__.\DIRECTORY_SEPARATOR.'ContainerYuc5DbU');
