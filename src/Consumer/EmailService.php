@@ -13,7 +13,7 @@ class EmailService implements ConsumerInterface
     private $mailer;
     private $validator;
     /**
-     * @param ContainerInterface $container
+     * @param Swift_Mailer $mailer
      */
     public function __construct(\Swift_Mailer $mailer)
     {
@@ -42,16 +42,25 @@ class EmailService implements ConsumerInterface
         }
     }
 
-    private function sendEmail($response)
+    /**
+     * Отправка почты
+     * @param array $data массив сообщения (subject,message,from,to)
+     */
+    private function sendEmail(array $data) : void
     {
         //echo 'Send to email' . PHP_EOL;
-        $message = (new \Swift_Message($response['subject'], $response['message']))
-            ->setFrom($response['from'])
-            ->setTo($response['to']);
+        $message = (new \Swift_Message($data['subject'], $data['message']))
+            ->setFrom($data['from'])
+            ->setTo($data['to']);
         $this->mailer->send($message);
     }
     
-    private function checkStructure($data) {
+    /**
+     * Проверка структуры
+     * @param array $data массив сообщения (subject,message,from,to)
+     */
+    private function checkStructure(array $data) : bool
+    {
         return
                 $this->validator->isValid($data['to'], new RFCValidation()) &&
                 $this->validator->isValid($data['from'], new RFCValidation()) &&
